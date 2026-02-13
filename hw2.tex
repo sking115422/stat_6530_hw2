@@ -1,0 +1,323 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+%\usepackage{xcolor}
+
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\usepackage{listings} % to inlude R code with \begin{lstlisting}[language=R] etc.
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{enumitem}
+\definecolor{backgroundCol}{rgb}{.97, .97, .97}
+\definecolor{commentstyleCol}{rgb}{0.678,0.584,0.686}
+\definecolor{keywordstyleCol}{rgb}{0.737,0.353,0.396}
+\definecolor{stringstyleCol}{rgb}{0.192,0.494,0.8}
+\definecolor{NumCol}{rgb}{0.686,0.059,0.569}
+\definecolor{basicstyleCol}{rgb}{0.345, 0.345, 0.345}       
+\lstset{ 
+  language=R,                     % the language of the code
+  basicstyle=\small  \ttfamily \color{basicstyleCol}, % the size of the fonts that are used for the code
+  %numbers=left,                   % where to put the line-numbers
+%  numberstyle=\color{green},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it is 1, each line
+                                  % will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{backgroundCol},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  %frame=single,                   % adds a frame around the code
+  %rulecolor=\color{white},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\color{keywordstyleCol},      % keyword style
+  commentstyle=\color{commentstyleCol},   % comment style
+  stringstyle=\color{stringstyleCol},      % string literal style
+  literate=%
+   *{0}{{{\color{NumCol}0}}}1
+    {1}{{{\color{NumCol}1}}}1
+    {2}{{{\color{NumCol}2}}}1
+    {3}{{{\color{NumCol}3}}}1
+    {4}{{{\color{NumCol}4}}}1
+    {5}{{{\color{NumCol}5}}}1
+    {6}{{{\color{NumCol}6}}}1
+    {7}{{{\color{NumCol}7}}}1
+    {8}{{{\color{NumCol}8}}}1
+    {9}{{{\color{NumCol}9}}}1
+} 
+
+\setlength{\parindent}{0pt}
+
+\title{STAT 6530\\Homework 2}
+\author{Spencer King\\811336941}
+\date{Due: Monday, February 16 via eLC by 11:59 pm}
+
+\begin{document}
+\maketitle
+
+\textbf{Problems}
+
+\noindent 
+
+\begin{enumerate}[leftmargin=*]
+
+\item Consider the following study done at the National Institute of Science and Technology. Asbestos fibers on filters were counted as part of a project to develop measurement standards for asbestos concentration. Asbestos dissolved in water was spread on a filter, and 3-mm diameter punches were taken from the filter and mounted on a transmission electron microscope. An operator counted the number of fibers in each of 23 grid squares, yielding the following counts:
+
+\begin{center}
+31 29 19 18 31 28 
+34 27 34 30 16 18 \\
+26 27 27 18 24 22 
+28 24 21 17 24 
+\end{center}
+
+We decide to model the counts as arising from a $\text{Poisson}(\mu)$ distribution. The probability mass function for this distribution is:
+
+\begin{equation*}
+f(y ; \mu) = \frac{\mu^y e^{-\mu}}{y!} 
+\end{equation*}
+
+for $ y = 0, 1, 2, \dots$, and the distribution has mean and variance both equal to $\mu$, where the rate parameter $\mu$ must be a positive real number.
+
+\begin{itemize}
+
+	\item [(a)] (5 points) Find the maximum likelihood estimate of $\mu$. Show your work (don't just write the answer, even though we did this in class).\\
+	
+  \textcolor{red}{
+    The likelihood function is 
+    \[
+    L(\mu) = \prod_{i=1}^{n} f(y_i; \mu) = \prod_{i=1}^{n} \frac{\mu^{y_i} e^{-\mu}}{y_i!}.
+    \]
+    The log-likelihood function is 
+    \[
+    \ell(\mu) = \sum_{i=1}^{n} y_i \log(\mu) - n\mu - \sum_{i=1}^{n} \log(y_i!).
+    \]
+    To find the maximum likelihood estimate, we take the derivative of the log-likelihood function with respect to $\mu$ and set it equal to zero:
+    \[
+    \frac{d\ell}{d\mu} = \sum_{i=1}^{n} \frac{y_i}{\mu} - n = 0
+    \]
+    Solving for $\mu$, we get 
+    \[
+    \hat{\mu} = \frac{1}{n} \sum_{i=1}^{n} y_i = \frac{573}{23} \approx 24.913,
+    \]
+    which is the sample mean of the counts. In this case, since the log-likelihood is concave in $\mu$ for $\mu > 0$, the critical point found by setting the first derivative to zero is the unique global maximum, so a second derivative check is unnecessary.
+  }\\
+
+	\item[(b)] (5 points) Find an approximate $90\%$ confidence interval for $\mu$. \\
+	
+  \textcolor{red}{
+    In this case since an approximate confidence interval (CI) will do, we can use the Wald CI. Lets assume $Y_1,\dots,Y_n \overset{iid}{\sim}\text{Poisson}(\mu)$. Then
+    \[
+    \mathbb{E}[Y_i]=\mu,\qquad \mathrm{Var}(Y_i)=\mu.
+    \]
+    The sample mean is $\bar Y=\frac{1}{n}\sum_{i=1}^n Y_i$. By independence,
+    \[
+    \mathrm{Var}(\bar Y)=\frac{1}{n^2}\sum_{i=1}^n \mathrm{Var}(Y_i)
+    =\frac{1}{n^2}\cdot n\mu=\frac{\mu}{n}.
+    \]
+    By the Central Limit Theorem,
+    \[
+    \bar Y \approx N\!\left(\mu,\frac{\mu}{n}\right),
+    \]
+    so
+    \[
+    \frac{\bar Y-\mu}{\sqrt{\mu/n}} \approx N(0,1).
+    \]
+    Replacing $\mu$ in the standard error by $\bar Y$ gives the approximate CI
+    \[
+    \mu \in \bar Y \pm z_{0.95}\sqrt{\frac{\bar Y}{n}}.
+    \]
+    Here $n=23$ and $\bar Y=\hat\mu=\frac{573}{23}\approx 24.913$. So
+    \[
+    \sqrt{\frac{\bar Y}{n}}=\sqrt{\frac{24.913}{23}}\approx 1.041.
+    \]
+    Using $z_{0.95}\approx 1.645$ for a 90\% two-sided CI, the margin is
+    \[
+    1.645(1.041)\approx 1.712,
+    \]
+    hence the approximate 90\% CI is
+    \[
+    24.913 \pm 1.712 = (23.201,\; 26.625).
+    \]
+  }
+
+  % %%% Fishcher info way
+  % \textcolor{red}{
+  %   \textbf{Deriving the Fisher information for one Poisson observation.}
+  %   Let $Y \sim \text{Poisson}(\mu)$ with pmf
+  %   \[
+  %   f(y;\mu)=\frac{\mu^y e^{-\mu}}{y!}, \qquad y=0,1,2,\dots
+  %   \]
+  %   The log-likelihood for a single observation is
+  %   \[
+  %   \ell(\mu)=\log f(y;\mu)=y\log\mu-\mu-\log(y!).
+  %   \]
+  %   Differentiate with respect to $\mu$:
+  %   \[
+  %   \ell'(\mu)=\frac{\partial \ell}{\partial \mu}=\frac{y}{\mu}-1,
+  %   \qquad
+  %   \ell''(\mu)=\frac{\partial^2 \ell}{\partial \mu^2}=-\frac{y}{\mu^2}.
+  %   \]
+  %   The Fisher information for one observation is
+  %   \[
+  %   \mathcal{I}(\mu)=-\mathbb{E}\!\left[\ell''(\mu)\right]
+  %   =-\mathbb{E}\!\left[-\frac{Y}{\mu^2}\right]
+  %   =\frac{1}{\mu^2}\mathbb{E}[Y].
+  %   \]
+  %   Since $\mathbb{E}[Y]=\mu$ for a Poisson($\mu$),
+  %   \[
+  %   \mathcal{I}(\mu)=\frac{1}{\mu^2}\cdot \mu=\frac{1}{\mu}.
+  %   \]
+  %   \medskip
+  %   \textbf{Now construct the approximate 90\% CI.}
+  %   For a sample of size $n$, the Fisher information is
+  %   \[
+  %   \mathcal{I}_n(\mu)=n\,\mathcal{I}(\mu)=\frac{n}{\mu}.
+  %   \]
+  %   The asymptotic variance of the MLE $\hat{\mu}$ is
+  %   \[
+  %   \text{Var}(\hat{\mu})\approx \frac{1}{\mathcal{I}_n(\mu)}=\frac{\mu}{n}.
+  %   \]
+  %   Using $\hat{\mu}$ to estimate $\mu$, we have
+  %   \[
+  %   \widehat{\text{Var}}(\hat{\mu})\approx \frac{\hat{\mu}}{n}
+  %   =\frac{24.913}{23}\approx 1.083,
+  %   \qquad
+  %   SE(\hat{\mu})=\sqrt{\widehat{\text{Var}}(\hat{\mu})}\approx 1.041.
+  %   \]
+  %   For a 90\% confidence interval, use $z_{0.95}\approx 1.645$, giving
+  %   \[
+  %   \hat{\mu}\pm z_{0.95}SE(\hat{\mu})
+  %   =24.913 \pm 1.645(1.041),
+  %   \]
+  %   which yields the interval
+  %   \[
+  %   (23.201,\; 26.625).
+  %   \]
+  % }\\
+
+\end{itemize} 
+
+\item Consider an i.i.d. sample of size $n$ from a distribution with probability mass function
+
+\begin{equation*}
+f(y; p) = p(1-p)^{y-1}
+\end{equation*}
+
+for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
+
+\begin{itemize}
+
+	\item [(a)] (5 points) Find the maximum likelihood estimate of $p$.\\
+	
+  \textcolor{red}{
+    The likelihood function is 
+    \[
+    L(p) = \prod_{i=1}^{n} f(y_i; p) = \prod_{i=1}^{n} p(1-p)^{y_i-1}
+    = p^n (1 - p)^{\sum_{i=1}^{n} y_i - 1} 
+    \]
+    If we let $\sum_{i=1}^{n} y_i - 1 = S - n$, then the log-likelihood function is
+    \[
+      \ell(p) = n \log (p) + (S - n) \log(1-p)
+    \]
+    Next, we need to take the first and second derivatives
+    \[
+      \ell'(p) = \frac{n}{p} + \frac{S - n}{1-p}
+    \]
+    \[
+      \ell''(p) = - \frac{n}{p^2} - \frac{S - n}{(1-p)^2}
+    \]
+    Now, we know that for $\ell'' (p) < 0$ for $(0 < p < 1)$. So, $\ell$ is strictly concave on $(0, 1)$. Therefore, an interior solution to $\ell'(p) = 0$ is the unique global maxmizer on $(0, 1)$.
+    \[
+      \ell'(p) = \frac{n}{p} + \frac{S - n}{1-p} = 0
+    \]
+    \[
+      p(S - n) = n(1-p)
+    \]
+    \[
+      pS - pn = n-np
+    \]
+    \[
+      \hat{p} = \frac{n}{S}
+    \]
+    We must now check the boundary $p = 1$. If $S > n$ (i.e., at least one $y_i > 1$), then $S-n>0$ and 
+    \[
+    L(1) = 1^n \cdot 0^(S-n) = 0
+    \]
+    so the maxmizer must be interior and $\hat{p} = \frac{n}{S} \in (0, 1)$. If $S = n$ (i.e., all $y_i = 1$), the $L(p) = p^n$, which is increasing on $(0, 1]$, so the maximum occurs at $p = 1$. Thus the final MLE is as follows:
+    \[
+    \hat{p} =
+    \begin{cases}
+    \dfrac{n}{\sum_{i=1}^n y_i}, & \text{if } \sum_{i=1}^n y_i > n, \\
+    1, & \text{if } \sum_{i=1}^n y_i = n.
+    \end{cases}
+    = \min\!\left(1, \frac{n}{\sum_{i=1}^n y_i}\right)
+    \] 
+  }\\
+
+	\item[(b)] (5 points) Find the Fisher information $\mathcal{I}(p)$.\\
+
+    \textcolor{red}{
+      We start here by making the following assumptions:
+      \begin{itemize}
+        \item $p$ is an interior parameter value on the interval $0 < p < 1$ such that derivatives exist and are finite.
+        \item Support, y, is parameter independent and does not depend on p.
+        \item Parameter is smooth such that for each $y$, $\ell$ is twice. differtiable
+        \item We can exchange expectation and differentiation in this case.
+      \end{itemize}
+      \vspace{4mm}
+      Now, we can use the following definition for fisher information:
+      \[
+      \mathcal{I}(p) = -E[\ell''(p)].
+      \]
+      So
+      \[
+      \mathcal{I}(p) = -E - \frac{n}{p^2} - \frac{S - n}{(1-p)^2}
+      \]
+    }
+
+	\item [(c)] (5 points) Find the asymptotic variance (meaning, the approximate variance when the sample size $n$ is large) of the maximum likelihood estimate.
+\end{itemize} 
+
+\item Consider an i.i.d. sample of size $n$ from a $\text{N}(\mu, \sigma^2)$ distribution.
+
+\begin{itemize}
+
+	\item [(a)] (5 points) Show that the sample mean and sample variance make up a two-dimensional sufficient statistic for $(\mu, \sigma^2)$.
+	
+  \textcolor{red}{
+    By definition, we know that 
+  }
+
+	\item[(b)] (5 points) Suppose we know that $\sigma^2 = 4$ but $\mu$ unknown. Find a sufficient statistic for $\mu$.
+	\item[(c)] (5 points) Suppose we know that $\mu = -3$ but $\sigma^2$ is unknown. Find a sufficient statistic for $\sigma^2$.
+\end{itemize} 
+
+
+\item (10 points) A social scientist wanted to estimate the proportion of school children in Boston who live in a single-parent family. She decided to use a sample size such that, with probability 0.95, the error would not exceed 0.05. How large a sample size should she use, if she has no idea of the size of that proportion?
+
+
+\item Consider collecting a sample of size $n = 1497$ from a population with the goal of estimating the proportion of the population that prefers coffee rather than tea. Suppose that the true proportion is $p = 0.53$. 
+\begin{itemize}
+	\item [(a)] (10 points) Use \texttt{R} to to simulate $s$ different samples of size $n$ from the population (using the true value of $p$ to simulate the data). For each sample, construct a $95\%$ score confidence interval for $p$. Report the percentage of the $s$ confidence intervals that contain the true value of $p$. Do this for $s = 5, 10, 100, 1000$.
+	\item[(b)] (10 points) Repeat part [(a)], but this time construct $70\%$ score confidence intervals.
+\end{itemize} 
+
+\item Consider a sample $\textbf Y = (Y_1, \dots, Y_n)$ that we wish to use to estimate the parameter $\theta$. Suppose that $\theta_1(\textbf Y)$ is an estimator of $\theta$ with $E[(\theta_1(\textbf Y))^2] < \infty$ for all $\theta$, suppose that $T(\textbf Y)$ is a sufficient statistic for $\theta$, and let $\theta_2(\textbf Y) = E[\theta_1 (\textbf Y) | T(\textbf Y)]$. Then, for all $\theta$,
+\begin{equation*} 
+E[(\theta_2(\textbf Y) - \theta)^2] \leq E[(\theta_1(\textbf Y) - \theta)^2],
+\end{equation*}
+and the inequality is strict unless $\theta_1(\textbf Y) = \theta_2(\textbf Y)$.
+\begin{itemize}
+	\item [(a)] (5 points) Note that $\theta_1(\textbf Y)$ and $\theta_2(\textbf Y)$ are both estimators of $\theta$. Interpret the statement above in the context of comparing the two estimators and what it implies about using sufficient statistics to construct estimators.
+	\item[(b)] \textbf{This question is only required for students enrolled in STAT 6530.} (10 points) Provide a proof of the statement above. Hints: First, show that the two estimators have the same means, so it suffices to compare their variances. To compare the variances of the estimators, recall the following result: if $X$ and $Z$ are random variables and $X$ has finite variance, then $Var(X) = E[Var(X|Z)] + Var(E[X|Z])$.
+\end{itemize} 
+
+
+\end{enumerate} 
+\end{document}
