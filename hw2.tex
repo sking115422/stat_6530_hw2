@@ -228,14 +228,14 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
     \]
     Next, we need to take the first and second derivatives
     \[
-      \ell'(p) = \frac{n}{p} + \frac{S - n}{1-p}
+      \ell'(p) = \frac{n}{p} - \frac{S - n}{1-p}
     \]
     \[
       \ell''(p) = - \frac{n}{p^2} - \frac{S - n}{(1-p)^2}
     \]
     Now, we know that for $\ell'' (p) < 0$ for $(0 < p < 1)$. So, $\ell$ is strictly concave on $(0, 1)$. Therefore, an interior solution to $\ell'(p) = 0$ is the unique global maxmizer on $(0, 1)$.
     \[
-      \ell'(p) = \frac{n}{p} + \frac{S - n}{1-p} = 0
+      \ell'(p) = \frac{n}{p} - \frac{S - n}{1-p} = 0
     \]
     \[
       p(S - n) = n(1-p)
@@ -396,9 +396,8 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
         \underbrace{\exp\!\left(-\frac{1}{8}\sum_{i=1}^n (x_i-\bar{x})^2\right)}_{h(x_1,\dots,x_n)}.
         \]
         By the Neyman--Fisher factorization theorem, $T(X)=\bar{X}$ is sufficient for $\mu$.
-    }
+    }\\
 
-    
 	\item[(c)] (5 points) Suppose we know that $\mu = -3$ but $\sigma^2$ is unknown. Find a sufficient statistic for $\sigma^2$.\\
 
     \textcolor{red}{
@@ -468,12 +467,11 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
 ### Code shared between part (a) and part (b)
 
 set.seed(123)
-
 n <- 1497
 p_true <- 0.53
 s_vals <- c(5, 10, 100, 1000)
 
-# function to estimate coverage for given confidence level and number of simulations s
+# function to estimate coverage for a given confidence level and number of simulations s
 coverage_score_ci <- function(s, conf_level, n, p_true) {
   alpha <- 1 - conf_level
   z <- qnorm(1 - alpha/2)
@@ -485,9 +483,12 @@ coverage_score_ci <- function(s, conf_level, n, p_true) {
     x <- rbinom(1, size = n, prob = p_true)
     phat <- x / n
     
-    se <- sqrt(phat * (1 - phat) / n)
-    lower <- phat - z * se
-    upper <- phat + z * se
+    # Wilson (score) confidence interval
+    denom <- 1 + z^2 / n
+    center <- (phat + z^2 / (2 * n)) / denom
+    margin <- (z / denom) * sqrt(phat * (1 - phat) / n + z^2 / (4 * n^2))
+    lower <- center - margin
+    upper <- center + margin
     
     contain[i] <- (lower <= p_true && p_true <= upper)
   }
@@ -501,7 +502,7 @@ coverage_score_ci <- function(s, conf_level, n, p_true) {
 	\item [(a)] (10 points) Use \texttt{R} to to simulate $s$ different samples of size $n$ from the population (using the true value of $p$ to simulate the data). For each sample, construct a $95\%$ score confidence interval for $p$. Report the percentage of the $s$ confidence intervals that contain the true value of $p$. Do this for $s = 5, 10, 100, 1000$. \\
 
     \begin{lstlisting}[basicstyle=\ttfamily\color{red}]
-        ### 95% score (Wald) intervals
+        ### 95% score (Wilson) intervals
         cat("95% score CI coverage (%)\n")
         for (s in s_vals) {
           cov <- coverage_score_ci(s, conf_level = 0.95, n = n, p_true = p_true)
@@ -518,7 +519,7 @@ coverage_score_ci <- function(s, conf_level, n, p_true) {
 	\item[(b)] (10 points) Repeat part [(a)], but this time construct $70\%$ score confidence intervals. \\
 
     \begin{lstlisting}[basicstyle=\ttfamily\color{red}]
-        ### 70% score (Wald) intervals
+        ### 70% score (Wilson) intervals
         cat("70% score CI coverage (%)\n")
         for (s in s_vals) {
           cov <- coverage_score_ci(s, conf_level = 0.70, n = n, p_true = p_true)
