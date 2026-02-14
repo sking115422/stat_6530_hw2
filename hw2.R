@@ -1,0 +1,45 @@
+### HW2
+
+set.seed(123)
+
+n <- 1497
+p_true <- 0.53
+s_vals <- c(5, 10, 100, 1000)
+
+# function to estimate coverage for a given confidence level and number of simulations s
+coverage_score_ci <- function(s, conf_level, n, p_true) {
+  alpha <- 1 - conf_level
+  z <- qnorm(1 - alpha/2)
+  
+  contain <- logical(s)
+  
+  for (i in 1:s) {
+    
+    x <- rbinom(1, size = n, prob = p_true)
+    phat <- x / n
+    
+    se <- sqrt(phat * (1 - phat) / n)
+    lower <- phat - z * se
+    upper <- phat + z * se
+    
+    contain[i] <- (lower <= p_true && p_true <= upper)
+  }
+  
+  mean(contain) * 100  # percent coverage
+}
+
+# Part (a): 95% score (Wald) intervals
+cat("95% score CI coverage (%)\n")
+for (s in s_vals) {
+  cov <- coverage_score_ci(s, conf_level = 0.95, n = n, p_true = p_true)
+  cat("s =", s, ":", round(cov, 1), "%\n")
+}
+
+cat("\n")
+
+# Part (b): 70% score (Wald) intervals
+cat("70% score CI coverage (%)\n")
+for (s in s_vals) {
+  cov <- coverage_score_ci(s, conf_level = 0.70, n = n, p_true = p_true)
+  cat("s =", s, ":", round(cov, 1), "%\n")
+}
