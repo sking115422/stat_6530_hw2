@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage[margin=1in]{geometry}
 %\usepackage{xcolor}
+\usepackage{listings}
 
 \usepackage{geometry}
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
@@ -249,7 +250,7 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
     \[
     L(1) = 1^n \cdot 0^(S-n) = 0
     \]
-    so the maxmizer must be interior and $\hat{p} = \frac{n}{S} \in (0, 1)$. If $S = n$ (i.e., all $y_i = 1$), the $L(p) = p^n$, which is increasing on $(0, 1]$, so the maximum occurs at $p = 1$. Thus the final MLE is as follows:
+    so the maximizer must be interior and $\hat{p} = \frac{n}{S} \in (0, 1)$. If $S = n$ (i.e., all $y_i = 1$), the $L(p) = p^n$, which is increasing on $(0, 1]$, so the maximum occurs at $p = 1$. Thus the final MLE is as follows:
     \[
     \hat{p} =
     \begin{cases}
@@ -261,13 +262,14 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
   }\\
 
 	\item[(b)] (5 points) Find the Fisher information $\mathcal{I}(p)$.\\
-
+        
     \textcolor{red}{
       We start here by making the following assumptions:
+      % Regularity conditions
       \begin{itemize}
         \item $p$ is an interior parameter value on the interval $0 < p < 1$ such that derivatives exist and are finite.
         \item Support, y, is parameter independent and does not depend on p.
-        \item Parameter is smooth such that for each $y$, $\ell$ is twice. differtiable
+        \item Parameter is smooth such that for each $y$, $\ell$ is twice. differentiable
         \item We can exchange expectation and differentiation in this case.
       \end{itemize}
       \vspace{4mm}
@@ -277,35 +279,259 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
       \]
       So
       \[
-      \mathcal{I}(p) = -E - \frac{n}{p^2} - \frac{S - n}{(1-p)^2}
+      \mathcal{I}(p) = -E \left[- \frac{n}{p^2} - \frac{\sum_{i=1}^{n} y_i - 1}{(1-p)^2}\right] 
+      = \frac{n}{p^2} + \frac{E[\sum_{i=1}^{n} y_i - 1]}{(1-p)^2}.
+      \]
+      Since $Y_i$ are i.i.d,
+      \[
+      E \left[ \sum_{i=1}^{n} y_i - 1 \right] = n E [y - 1] = n (\frac{1}{p} - 1) = \frac{n(1 - p)}{p}.
+      \]
+      Substituting back in
+      \[
+      \mathcal{I}(p) = \frac{n}{p^2} + \frac{n(1 - p)}{p(1-p)^2} = \frac{n}{p^2} + \frac{n}{p(1-p)} = \frac{n}{p^2(1-p)}
       \]
     }
 
-	\item [(c)] (5 points) Find the asymptotic variance (meaning, the approximate variance when the sample size $n$ is large) of the maximum likelihood estimate.
+	\item [(c)] (5 points) Find the asymptotic variance (meaning, the approximate variance when the sample size $n$ is large) of the maximum likelihood estimate.\\
+
+    \textcolor{red}{
+        Under regularity conditions, we know that
+        \[
+        \sqrt{n}(\hat{p}_n - p) \xrightarrow{d} N \left( 0, \frac{1}{I_1(p)} \right),
+        \]
+        where $I_1(p)$ is the Fisher information in one observation. Equivalently, since $I_n(p) = n I_1(p)$,
+        \[
+        \hat{p} \approx N \left(p, \frac{1}{I_n(p)} \right) \text{for large $n$}.
+        \]
+        From this it follows that:
+        \[
+        Var(\hat{p}_n) \rightarrow \frac{1}{I_n(p)} \text{ as $n$ } \rightarrow \infty.
+        \]
+        At this point, we can plug in the Fisher information to obtain the asymptotic variance:
+        \[
+        Var(\hat{p}_n) \approx \frac{1}{I_n(p)} = \frac{p^2(1-p)}{n}.
+        \]
+    }
+    
 \end{itemize} 
 
 \item Consider an i.i.d. sample of size $n$ from a $\text{N}(\mu, \sigma^2)$ distribution.
 
 \begin{itemize}
 
-	\item [(a)] (5 points) Show that the sample mean and sample variance make up a two-dimensional sufficient statistic for $(\mu, \sigma^2)$.
+	\item [(a)] (5 points) Show that the sample mean and sample variance make up a two-dimensional sufficient statistic for $(\mu, \sigma^2)$.\\
 	
-  \textcolor{red}{
-    By definition, we know that 
-  }
+    \textcolor{red}{
+        Let $X_1,\dots,X_n \overset{\mathrm{iid}}{\sim} N(\mu,\sigma^2)$. The joint density of 
+        $x=(x_1,\dots,x_n)$ is
+        \[
+        f_{\mu,\sigma^2}(x_1,\dots,x_n)
+        = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}}
+        \exp\!\left(-\frac{(x_i-\mu)^2}{2\sigma^2}\right)
+        = (2\pi\sigma^2)^{-n/2} 
+        \exp\!\left(-\frac{1}{2\sigma^2}\sum_{i=1}^n (x_i-\mu)^2\right).
+        \]
+        Using the identity
+        \[
+        \sum_{i=1}^n (x_i-\mu)^2
+        = \sum_{i=1}^n (x_i-\bar{x})^2 + n(\bar{x}-\mu)^2,
+        \]
+        and noting that
+        \[
+        \sum_{i=1}^n (x_i-\bar{x})^2 = (n-1)s^2,
+        \quad \text{where} \quad
+        s^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i-\bar{x})^2,
+        \]
+        we obtain
+        \[
+        f_{\mu,\sigma^2}(x_1,\dots,x_n)
+        = (2\pi\sigma^2)^{-n/2}
+        \exp\!\left(-\frac{(n-1)s^2 + n(\bar{x}-\mu)^2}{2\sigma^2}\right).
+        \]
+        This can be written in the factorized form
+        \[
+        f_{\mu,\sigma^2}(x_1,\dots,x_n)
+        =
+        \underbrace{(2\pi\sigma^2)^{-n/2}
+        \exp\!\left(-\frac{(n-1)s^2}{2\sigma^2}\right)
+        \exp\!\left(-\frac{n(\bar{x}-\mu)^2}{2\sigma^2}\right)}_{g_{\mu,\sigma^2}(\bar{x},s^2)}
+        \cdot
+        \underbrace{1}_{h(x_1,\dots,x_n)}.
+        \]
+        By the Neyman--Fisher factorization theorem, the statistic
+        \[
+        T(X) = (\bar{X}, S^2)
+        \]
+        is sufficient for $(\mu,\sigma^2)$. \\
+    }
 
-	\item[(b)] (5 points) Suppose we know that $\sigma^2 = 4$ but $\mu$ unknown. Find a sufficient statistic for $\mu$.
-	\item[(c)] (5 points) Suppose we know that $\mu = -3$ but $\sigma^2$ is unknown. Find a sufficient statistic for $\sigma^2$.
+	\item[(b)] (5 points) Suppose we know that $\sigma^2 = 4$ but $\mu$ unknown. Find a sufficient statistic for $\mu$.\\
+
+    \textcolor{red}{
+        The joint density of
+        $x=(x_1,\dots,x_n)$ is
+        \[
+        f_\mu(x_1,\dots,x_n)
+        = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\cdot 4}}
+        \exp\!\left(-\frac{(x_i-\mu)^2}{2\cdot 4}\right)
+        = (2\pi\cdot 4)^{-n/2}\exp\!\left(-\frac{1}{8}\sum_{i=1}^n (x_i-\mu)^2\right).
+        \]
+        Again using the identity
+        \[
+        \sum_{i=1}^n (x_i-\mu)^2=\sum_{i=1}^n (x_i-\bar{x})^2+n(\bar{x}-\mu)^2,
+        \]
+        we obtain
+        \[
+        f_\mu(x_1,\dots,x_n)
+        = (2\pi\cdot 4)^{-n/2}
+        \exp\!\left(-\frac{n(\bar{x}-\mu)^2}{8}\right)
+        \exp\!\left(-\frac{1}{8}\sum_{i=1}^n (x_i-\bar{x})^2\right).
+        \]
+        Hence
+        \[
+        f_\mu(x_1,\dots,x_n)
+        =
+        \underbrace{(2\pi\cdot 4)^{-n/2}\exp\!\left(-\frac{n(\bar{x}-\mu)^2}{8}\right)}_{g_\mu(\bar{x})}
+        \cdot
+        \underbrace{\exp\!\left(-\frac{1}{8}\sum_{i=1}^n (x_i-\bar{x})^2\right)}_{h(x_1,\dots,x_n)}.
+        \]
+        By the Neyman--Fisher factorization theorem, $T(X)=\bar{X}$ is sufficient for $\mu$.
+    }
+
+    
+	\item[(c)] (5 points) Suppose we know that $\mu = -3$ but $\sigma^2$ is unknown. Find a sufficient statistic for $\sigma^2$.\\
+
+    \textcolor{red}{
+        The joint density of
+        $x=(x_1,\dots,x_n)$ is
+        \[
+        f_{\sigma^2}(x_1,\dots,x_n)
+        = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}}
+        \exp\!\left(-\frac{(x_i+3)^2}{2\sigma^2}\right)
+        = (2\pi\sigma^2)^{-n/2}
+        \exp\!\left(-\frac{1}{2\sigma^2}\sum_{i=1}^n (x_i+3)^2\right).
+        \]
+        Let
+        \[
+        T(X)=\sum_{i=1}^n (X_i+3)^2.
+        \]
+        Then
+        \[
+        f_{\sigma^2}(x_1,\dots,x_n)
+        =
+        \underbrace{(2\pi\sigma^2)^{-n/2}\exp\!\left(-\frac{1}{2\sigma^2}T(x)\right)}_{g_{\sigma^2}(T(x))}
+        \cdot
+        \underbrace{1}_{h(x_1,\dots,x_n)}.
+        \]
+        By the Neyman--Fisher factorization theorem, $T(X)=\sum_{i=1}^n (X_i+3)^2$ is sufficient for $\sigma^2$.
+    }
+    
 \end{itemize} 
 
 
-\item (10 points) A social scientist wanted to estimate the proportion of school children in Boston who live in a single-parent family. She decided to use a sample size such that, with probability 0.95, the error would not exceed 0.05. How large a sample size should she use, if she has no idea of the size of that proportion?
+\item (10 points) A social scientist wanted to estimate the proportion of school children in Boston who live in a single-parent family. She decided to use a sample size such that, with probability 0.95, the error would not exceed 0.05. How large a sample size should she use, if she has no idea of the size of that proportion? \\
+
+\textcolor{red}{
+    We want $P\left(|\hat p - p| \le 0.05\right) = 0.95$. For a proportion, the margin of error is
+    \[
+    E = z_{0.975}\sqrt{\frac{p(1-p)}{n}},
+    \]
+    with $z_{0.975} = 1.96$ for 95\% confidence. Thus we need
+    \[
+    1.96\sqrt{\frac{p(1-p)}{n}} \le 0.05.
+    \]
+    Since $p$ is unknown, we use the worst-case value $p(1-p) \le 0.25$ (attained at $p=0.5$). Therefore,
+    \[
+    1.96\sqrt{\frac{0.25}{n}} \le 0.05.
+    \]
+    Solving for $n$:
+    \[
+    \sqrt{\frac{0.25}{n}} \le \frac{0.05}{1.96},
+    \qquad
+    \frac{0.25}{n} \le \left(\frac{0.05}{1.96}\right)^2,
+    \]
+    \[
+    n \ge \frac{0.25}{(0.05/1.96)^2}
+    = 0.25\left(\frac{1.96}{0.05}\right)^2
+    = 384.16.
+    \]
+    Rounding up,
+    \[
+    n = 385.
+    \]
+}
 
 
-\item Consider collecting a sample of size $n = 1497$ from a population with the goal of estimating the proportion of the population that prefers coffee rather than tea. Suppose that the true proportion is $p = 0.53$. 
+\item Consider collecting a sample of size $n = 1497$ from a population with the goal of estimating the proportion of the population that prefers coffee rather than tea. Suppose that the true proportion is $p = 0.53$. \\
+
+\begin{lstlisting}[basicstyle=\ttfamily\color{red}]
+### Code shared between part (a) and part (b)
+
+set.seed(123)
+
+n <- 1497
+p_true <- 0.53
+s_vals <- c(5, 10, 100, 1000)
+
+# function to estimate coverage for given confidence level and number of simulations s
+coverage_score_ci <- function(s, conf_level, n, p_true) {
+  alpha <- 1 - conf_level
+  z <- qnorm(1 - alpha/2)
+  
+  contain <- logical(s)
+  
+  for (i in 1:s) {
+    
+    x <- rbinom(1, size = n, prob = p_true)
+    phat <- x / n
+    
+    se <- sqrt(phat * (1 - phat) / n)
+    lower <- phat - z * se
+    upper <- phat + z * se
+    
+    contain[i] <- (lower <= p_true && p_true <= upper)
+  }
+  
+  mean(contain) * 100  # percent coverage
+}
+\end{lstlisting}
+
 \begin{itemize}
-	\item [(a)] (10 points) Use \texttt{R} to to simulate $s$ different samples of size $n$ from the population (using the true value of $p$ to simulate the data). For each sample, construct a $95\%$ score confidence interval for $p$. Report the percentage of the $s$ confidence intervals that contain the true value of $p$. Do this for $s = 5, 10, 100, 1000$.
-	\item[(b)] (10 points) Repeat part [(a)], but this time construct $70\%$ score confidence intervals.
+
+	\item [(a)] (10 points) Use \texttt{R} to to simulate $s$ different samples of size $n$ from the population (using the true value of $p$ to simulate the data). For each sample, construct a $95\%$ score confidence interval for $p$. Report the percentage of the $s$ confidence intervals that contain the true value of $p$. Do this for $s = 5, 10, 100, 1000$. \\
+
+    \begin{lstlisting}[basicstyle=\ttfamily\color{red}]
+        ### 95% score (Wald) intervals
+        cat("95% score CI coverage (%)\n")
+        for (s in s_vals) {
+          cov <- coverage_score_ci(s, conf_level = 0.95, n = n, p_true = p_true)
+          cat("s =", s, ":", round(cov, 1), "%\n")
+        }
+
+        ### 95% score CI coverage (%)
+        # s = 5 : 80 %
+        # s = 10 : 80 %
+        # s = 100 : 96 %
+        # s = 1000 : 95.4 %
+    \end{lstlisting}
+
+	\item[(b)] (10 points) Repeat part [(a)], but this time construct $70\%$ score confidence intervals. \\
+
+    \begin{lstlisting}[basicstyle=\ttfamily\color{red}]
+        ### 70% score (Wald) intervals
+        cat("70% score CI coverage (%)\n")
+        for (s in s_vals) {
+          cov <- coverage_score_ci(s, conf_level = 0.70, n = n, p_true = p_true)
+          cat("s =", s, ":", round(cov, 1), "%\n")
+        }
+
+        ### 70% score CI coverage (%) 
+        # s = 5 : 80 %
+        # s = 10 : 90 %
+        # s = 100 : 70 %
+        # s = 1000 : 71.2 %
+    \end{lstlisting}
+    
 \end{itemize} 
 
 \item Consider a sample $\textbf Y = (Y_1, \dots, Y_n)$ that we wish to use to estimate the parameter $\theta$. Suppose that $\theta_1(\textbf Y)$ is an estimator of $\theta$ with $E[(\theta_1(\textbf Y))^2] < \infty$ for all $\theta$, suppose that $T(\textbf Y)$ is a sufficient statistic for $\theta$, and let $\theta_2(\textbf Y) = E[\theta_1 (\textbf Y) | T(\textbf Y)]$. Then, for all $\theta$,
@@ -313,9 +539,97 @@ for $y = 1, 2, 3, \dots$, with $0 < p \leq 1$.
 E[(\theta_2(\textbf Y) - \theta)^2] \leq E[(\theta_1(\textbf Y) - \theta)^2],
 \end{equation*}
 and the inequality is strict unless $\theta_1(\textbf Y) = \theta_2(\textbf Y)$.
+
 \begin{itemize}
-	\item [(a)] (5 points) Note that $\theta_1(\textbf Y)$ and $\theta_2(\textbf Y)$ are both estimators of $\theta$. Interpret the statement above in the context of comparing the two estimators and what it implies about using sufficient statistics to construct estimators.
-	\item[(b)] \textbf{This question is only required for students enrolled in STAT 6530.} (10 points) Provide a proof of the statement above. Hints: First, show that the two estimators have the same means, so it suffices to compare their variances. To compare the variances of the estimators, recall the following result: if $X$ and $Z$ are random variables and $X$ has finite variance, then $Var(X) = E[Var(X|Z)] + Var(E[X|Z])$.
+
+	\item [(a)] (5 points) Note that $\theta_1(\textbf Y)$ and $\theta_2(\textbf Y)$ are both estimators of $\theta$. Interpret the statement above in the context of comparing the two estimators and what it implies about using sufficient statistics to construct estimators. \\
+
+    \textcolor{red}{
+        The construction
+        \[
+        \theta_2(\mathbf Y)=\mathbb E\!\left[\theta_1(\mathbf Y)\mid T(\mathbf Y)\right]
+        \]
+        takes an arbitrary estimator $\theta_1(\mathbf Y)$ and \emph{Rao--Blackwellizes} it by averaging out all sample-to-sample variation that is \emph{irrelevant} once we know the sufficient statistic $T(\mathbf Y)$. The displayed inequality
+        \[
+        \mathbb E\!\left[(\theta_2(\mathbf Y)-\theta)^2\right]\le 
+        \mathbb E\!\left[(\theta_1(\mathbf Y)-\theta)^2\right]\quad \text{for all }\theta
+        \]
+        says that $\theta_2$ has \emph{no larger mean squared error} (MSE) than $\theta_1$, uniformly over the parameter space. In other words, conditioning on a sufficient statistic cannot make an estimator worse in MSE, and typically makes it strictly better. Practically, this implies:
+        \begin{itemize}
+        \item Sufficiency means $T(\mathbf Y)$ retains all information about $\theta$ in the sample.
+        \item Therefore, any dependence of $\theta_1(\mathbf Y)$ on $\mathbf Y$ beyond what is captured by $T(\mathbf Y)$ is ``noise'' with respect to estimating $\theta$.
+        \item Replacing $\theta_1$ by $\theta_2=\mathbb E[\theta_1\mid T]$ removes that extra noise, yielding an estimator at least as accurate (in MSE), with strict improvement unless $\theta_1$ was already a function of $T$ a.s.
+        \end{itemize}
+    }
+
+    
+	\item[(b)] \textbf{This question is only required for students enrolled in STAT 6530.} (10 points) Provide a proof of the statement above. Hints: First, show that the two estimators have the same means, so it suffices to compare their variances. To compare the variances of the estimators, recall the following result: if $X$ and $Z$ are random variables and $X$ has finite variance, then $Var(X) = E[Var(X|Z)] + Var(E[X|Z])$. \\
+
+    \textcolor{red}{
+        Let $\theta$ be fixed. Let $T=T(\mathbf Y)$ and define
+        \[
+        \theta_2(\mathbf Y)=\mathbb E[\theta_1(\mathbf Y)\mid T].
+        \]
+        First note that $\theta_1$ and $\theta_2$ have the same mean:
+        \[
+        \mathbb E[\theta_2(\mathbf Y)]
+        = \mathbb E\!\left[\mathbb E[\theta_1(\mathbf Y)\mid T]\right]
+        = \mathbb E[\theta_1(\mathbf Y)],
+        \]
+        by the tower property.
+        Now compare the MSEs. Use the conditional-variance decomposition (law of total variance):
+        \[
+        \operatorname{Var}(\theta_1(\mathbf Y))
+        = \mathbb E\!\left[\operatorname{Var}(\theta_1(\mathbf Y)\mid T)\right]
+        + \operatorname{Var}\!\left(\mathbb E[\theta_1(\mathbf Y)\mid T]\right).
+        \]
+        But $\mathbb E[\theta_1(\mathbf Y)\mid T]=\theta_2(\mathbf Y)$, so
+        \[
+        \operatorname{Var}(\theta_1(\mathbf Y))
+        = \mathbb E\!\left[\operatorname{Var}(\theta_1(\mathbf Y)\mid T)\right]
+        + \operatorname{Var}(\theta_2(\mathbf Y))
+        \;\;\ge\;\; \operatorname{Var}(\theta_2(\mathbf Y)).
+        \]
+        Thus $\operatorname{Var}(\theta_2)\le \operatorname{Var}(\theta_1)$.
+        Next show that the two estimators have the same bias (hence the same squared bias). Since their expectations coincide,
+        \[
+        \operatorname{Bias}(\theta_2)
+        = \mathbb E[\theta_2(\mathbf Y)]-\theta
+        = \mathbb E[\theta_1(\mathbf Y)]-\theta
+        = \operatorname{Bias}(\theta_1).
+        \]
+        Therefore,
+        \[
+        \operatorname{MSE}(\theta_i)
+        =\mathbb E[(\theta_i(\mathbf Y)-\theta)^2]
+        =\operatorname{Var}(\theta_i(\mathbf Y))+\operatorname{Bias}(\theta_i)^2,
+        \quad i=1,2,
+        \]
+        and since the biases are equal while $\operatorname{Var}(\theta_2)\le \operatorname{Var}(\theta_1)$, we conclude
+        \[
+        \mathbb E[(\theta_2(\mathbf Y)-\theta)^2]\le \mathbb E[(\theta_1(\mathbf Y)-\theta)^2].
+        \]
+        Finally, determine when the inequality is strict. From
+        \[
+        \operatorname{Var}(\theta_1(\mathbf Y))-\operatorname{Var}(\theta_2(\mathbf Y))
+        =\mathbb E[\operatorname{Var}(\theta_1(\mathbf Y)\mid T)],
+        \]
+        we have equality if and only if
+        \[
+        \mathbb E[\operatorname{Var}(\theta_1(\mathbf Y)\mid T)]=0
+        \quad\Longleftrightarrow\quad
+        \operatorname{Var}(\theta_1(\mathbf Y)\mid T)=0 \text{ a.s.}
+        \]
+        But $\operatorname{Var}(\theta_1\mid T)=0$ a.s.\ holds if and only if $\theta_1(\mathbf Y)$ is (a.s.) a function of $T$, equivalently
+        \[
+        \theta_1(\mathbf Y)=\mathbb E[\theta_1(\mathbf Y)\mid T]=\theta_2(\mathbf Y)\quad \text{a.s.}
+        \]
+        Hence the inequality is strict unless $\theta_1(\mathbf Y)=\theta_2(\mathbf Y)$ almost surely. 
+        \hfill $\square$
+    }
+
+    
+    
 \end{itemize} 
 
 
